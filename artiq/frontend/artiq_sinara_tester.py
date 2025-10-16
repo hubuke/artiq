@@ -693,6 +693,35 @@ class SinaraTester(EnvExperiment):
                 phaser.set_leds(0)
                 delay(100*ms)
 
+    @kernel
+    def setup_phaser_servo(self, phaser, duc):
+        self.core.break_realtime()
+        phaser.init()
+        delay(1*ms)
+        phaser.channel[0].set_duc_frequency(duc)
+        phaser.channel[0].set_duc_cfg()
+        phaser.channel[0].set_att(6*dB)
+        phaser.channel[1].set_duc_frequency(-duc)
+        phaser.channel[1].set_duc_cfg()
+        phaser.channel[1].set_att(6*dB)
+        phaser.duc_stb()
+        delay(10*ms)
+        for i in range(5):
+            if i == 0:
+                amp = 0.5
+            else:
+                amp = 0.0
+            phaser.channel[0].oscillator[i].set_frequency(1 * MHz)
+            phaser.channel[0].oscillator[i].set_amplitude_phase(amp)
+            phaser.channel[1].oscillator[i].set_frequency(1 * MHz)
+            phaser.channel[1].oscillator[i].set_amplitude_phase(amp)
+            delay(1*ms)
+        phaser.channel[0].set_iir(profile=0, kp=-1., ki=0., g=0., x_offset=0.0, y_offset=0.5)
+        phaser.channel[1].set_iir(profile=0, kp=-1., ki=0., g=0., x_offset=0.0, y_offset=0.5)
+        delay(1*ms)
+        phaser.channel[0].set_servo(profile=0, enable=1, hold=0)
+        phaser.channel[1].set_servo(profile=0, enable=1, hold=0)
+
     def test_phasers(self):
         print("*** Testing Phaser DACs and 6 USER LEDs.")
         print("Frequencies:")
@@ -708,6 +737,26 @@ class SinaraTester(EnvExperiment):
         self.phaser_led_wave(
             [card_dev for _, (__, card_dev) in enumerate(self.phasers)]
         )
+        
+        # TODO: phaser ADC test
+        print("*** Testing Phaser ADCs and Servo ***.")
+        print("Setting up servo...")
+        for card_n, (card_name, card_dev) in enumerate(self.phasers):
+            if card_dev.gw_rev == PHASER_GW_BASE:
+                duc = (card_n + 1)*10*MHz
+                self.setup_phaser_servo(card_dev, duc)
+                print("Done. Press ENTER to continue.")
+                input()
+                # print("Testing servo...")
+                # print("Apply 1.5V to ADC IN0, and use a signal analyzer or oscilloscope to measure the amplitude of RF0, should be around.")
+
+            elif card_dev.gw_rev == PHASER_GW_MIQRO:
+                print("MIQRO does not support servo or ADC")
+                print("Press ENTER to continue.")
+                input()
+            else:
+                raise ValueError("Unknown phaser gateway revision")
+        
 
     @kernel
     def grabber_capture(self, card_dev, rois):
@@ -1062,6 +1111,7 @@ class SinaraTester(EnvExperiment):
         for name in tests:
             if getattr(self, name):
                 getattr(self, f"test_{name}")()
+                print(f"test_{name}")
 
     @classmethod
     def available_tests(cls):
