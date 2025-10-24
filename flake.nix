@@ -15,7 +15,7 @@
     };
 
     artiq-comtools = {
-      url = "git+file:///home/bukehu/projects/ssl_support_test/artiq-comtools";
+      url = "github:m-labs/artiq-comtools";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.sipyco.follows = "sipyco";
     };
