@@ -1,0 +1,16 @@
+{
+    "target": "kasli_soc",
+    "min_artiq_version": "8.0",
+    "variant": "test_setup",
+    "hw_rev": "v1.2",
+    "base": "standalone",
+    "core_addr": "192.168.1.150",
+    "peripherals": [
+        {
+        "type": "phaser",
+        "ports": [0],
+        "mode": "base",
+        "hw_rev": "v1.1"
+        }
+    ]
+}
