@@ -88,6 +88,7 @@ Breaking changes:
 
 * Experimental features have been removed.
 * SU-Servo coefficient memory have been remapped. Users should re-interpret the record written by Channel.get_profile_mu().
+* ``device_db.py`` now requires all device DB keys to be valid Python identifiers ``[A-Za-z0-9_]``; no special characters (except underscore) are allowed.
 
 ARTIQ-8
 -------
