@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 WAVEFORM_MIN_HEIGHT = 50
 WAVEFORM_MAX_HEIGHT = 200
+PREFIXES_STR = "pnumkMG"
 
 
 class ProxyClient():
@@ -655,7 +656,7 @@ class _CursorTimeControl(QtWidgets.QLineEdit):
 
     def _setValueFromText(self, text):
         try:
-            if not text.strip().endswith(("event", "events", "s")):
+            if text.strip().endswith(tuple(PREFIXES_STR)):
                 text += self._suffix
             self._value = pg.siEval(text) * (1e12 / self._timescale)
         except:
